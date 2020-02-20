@@ -1,9 +1,18 @@
-var express = require('express');
-var router = express.Router();
-var https = require('https');
-var fs = require('fs');
-var packageCommon = require('./model/packageCommon');
-var packageTypeList = require('./model/packageTypeList');
+/*
+ * @Author: your name
+ * @Date: 2020-02-16 19:16:15
+ * @LastEditTime: 2020-02-20 21:54:57
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \amp-server\routes\site\index.js
+ */
+const express = require('express');
+const router = express.Router();
+const https = require('https');
+const fs = require('fs');
+const db = require('../../libs/db');
+const packageCommon = require('./model/packageCommon');
+const packageTypeList = require('./model/packageTypeList');
 
 const packageDetailListPath = __dirname + '/model/packageDetailList.json';
 
@@ -24,6 +33,39 @@ if (!detailList) {
 } else {
   detailList = JSON.parse(detailList);
 }
+
+/* 获取页面列表 */
+router.get('/:siteId', async (req, res, next) => {
+  const { siteId } = req.params;
+
+  let sqlSyntax = ``
+
+  sqlSyntax = `
+    SELECT id, title, site_id
+    FROM amp.page_tbl
+    WHERE site_id = ${siteId}
+  `
+
+  const results = await db.exec(sqlSyntax)
+  const response = {}
+
+  if (results && results.length) {
+    response.id = siteId
+    response.page = results.map(row => {
+      return {
+        id: row.id,
+        siteId,
+        title: row.title
+      }
+    })
+
+    res.send(response)
+
+    return false
+  }
+
+  res.send(response)
+})
 
 /* 获取分类列表接口 */
 router.get('/package/type/list', function (req, res, next) {
