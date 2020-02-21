@@ -79,6 +79,10 @@ module.exports = {
         CREATE TABLE IF NOT EXISTS \`page_tbl\`(
           \`id\` INT UNSIGNED AUTO_INCREMENT,
           \`site_id\` INT NOT NULL,
+          \`name\` VARCHAR(100) NOT NULL,
+          \`is_home_page\` TINYINT NOT NULL,
+          \`is_deleted\` TINYINT NOT NULL,
+          \`page_order\` INT NOT NULL,
           \`title\` VARCHAR(100) NOT NULL,
           \`gmt_create\` DATETIME NOT NULL,
           \`gmt_modified\` DATETIME NOT NULL,
@@ -95,10 +99,10 @@ module.exports = {
         )ENGINE=InnoDB DEFAULT CHARSET=utf8;`
       )]
     /*
-      INSERT INTO amp.site_tbl(creator_id, gmt_create) VALUES(1, '2019-11-11 19:15:00')
-      INSERT INTO amp.page_tbl(site_id, title, gmt_create, gmt_modified) VALUES(1, '优惠券-首页', '2019-11-11 19:15:00', '2019-11-11 19:15:00')
-      INSERT INTO amp.page_tbl(site_id, title, gmt_create, gmt_modified) VALUES(1, '优惠券-详情', '2019-11-11 19:15:00', '2019-11-11 19:15:00')
-      INSERT INTO amp.component_tbl(package_id, uid, page_id) VALUES('PK154028399831472100449597316330', 'component_1', '2019-11-11 19:15:00')
+      INSERT INTO amp.site_tbl(creator_id, gmt_create) VALUES(1, '2019-11-11 19:15:00');
+      INSERT INTO amp.page_tbl(site_id, page_order, name, is_home_page, is_deleted, title, gmt_create, gmt_modified) VALUES(1, 0, 'a.html', 1, 0, '优惠券-首页', '2019-11-11 19:15:00', '2019-11-11 19:15:00');
+      INSERT INTO amp.page_tbl(site_id, page_order, name, is_home_page, is_deleted, title, gmt_create, gmt_modified) VALUES(1, 1, 'b.html', 0, 0, '优惠券-详情', '2019-11-11 19:15:00', '2019-11-11 19:15:00');
+      INSERT INTO amp.component_tbl(package_id, uid, page_id) VALUES('PK154028399831472100449597316330', 'component_1', '2019-11-11 19:15:00');
     */
 
     return Promise.all(queue)

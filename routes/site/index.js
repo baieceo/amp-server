@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-16 19:16:15
- * @LastEditTime: 2020-02-20 21:54:57
+ * @LastEditTime: 2020-02-21 21:20:26
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \amp-server\routes\site\index.js
@@ -34,38 +34,43 @@ if (!detailList) {
   detailList = JSON.parse(detailList);
 }
 
-/* 获取页面列表 */
-router.get('/:siteId', async (req, res, next) => {
-  const { siteId } = req.params;
-
-  let sqlSyntax = ``
+const fetchPageListData = async (siteId) => {
+  let sqlSyntax = ``;
 
   sqlSyntax = `
-    SELECT id, title, site_id
+    SELECT id, title, name, page_order, is_home_page, is_deleted, site_id
     FROM amp.page_tbl
-    WHERE site_id = ${siteId}
-  `
+    WHERE site_id = ? AND is_deleted <> 1
+    ORDER BY page_order ASC
+  `;
 
-  const results = await db.exec(sqlSyntax)
-  const response = {}
+  const results = await db.exec(sqlSyntax, [siteId]);
+  const response = {};
 
   if (results && results.length) {
-    response.id = siteId
+    response.id = Number(siteId);
     response.page = results.map(row => {
       return {
+        siteId: Number(siteId),
         id: row.id,
-        siteId,
+        name: row.name,
+        pageOrder: row.page_order,
+        isHomePage: !!row.is_home_page,
+        isDeleted: !!row.is_deleted,
         title: row.title
       }
-    })
-
-    res.send(response)
-
-    return false
+    });
   }
 
-  res.send(response)
-})
+  return response;
+};
+
+/* 获取页面列表 */
+router.get('/:siteId', async (req, res, next) => {
+  const response = await fetchPageListData(req.params.siteId);
+
+  res.send(response);
+});
 
 /* 获取分类列表接口 */
 router.get('/package/type/list', function (req, res, next) {
@@ -122,6 +127,100 @@ router.get('/package/common/detail', function (req, res, next) {
   } else {
     res.send({});
   }
+});
+
+/* 删除页面 */
+router.post('/page/remove', async (req, res, next) => {
+  const { pageId } = req.body;
+
+  if (pageId !== undefined) {
+    let sqlSyntax = ``;
+
+    sqlSyntax = `
+      UPDATE amp.page_tbl 
+      SET is_deleted = ?
+      WHERE id = ?
+    `;
+
+    const results = await db.exec(sqlSyntax, [1, pageId]);
+    const response = {};
+
+    res.send(response);
+
+    return false;
+  } else {
+    res.send({});
+  }
+});
+
+/* 设置默认 */
+router.post('/page/default/update', async (req, res, next) => {
+  const { siteId, pageId } = req.body;
+
+  if (siteId !== undefined && pageId !== undefined) {
+    let sqlSyntax = ``;
+    let results = null;
+
+    sqlSyntax = `
+      UPDATE amp.page_tbl 
+      SET is_home_page = ?
+      WHERE site_id = ?
+    `;
+
+    results = await db.exec(sqlSyntax, [0, siteId]);
+
+    sqlSyntax = `
+      UPDATE amp.page_tbl 
+      SET is_home_page = ?
+      WHERE id = ?
+    `;
+
+    console.log(88888, siteId, pageId);
+
+    results = await db.exec(sqlSyntax, [1, pageId]);
+
+    const response = {
+      success: true
+    };
+
+    res.send(response);
+  } else {
+    res.send({});
+  }
+});
+
+/* 更新页面 */
+router.put('/:siteId', async (req, res, next) => {
+  const { siteId, data = {} } = req.body;
+  const { page = [] } = data;
+  let queue = [];
+
+  queue = page.map(row => {
+    if (row.id !== undefined) {
+      // 更新
+      return db.exec(`
+        UPDATE amp.page_tbl 
+        SET is_deleted = ?, is_home_page = ? 
+        WHERE id = ?`,
+        [Number(row.isDeleted), Number(row.isHomePage), row.id]
+      );
+    } else {
+      // 新建页面
+      return db.exec(`
+        INSERT INTO amp.page_tbl
+        (site_id, name, is_home_page, is_deleted, page_order, title, gmt_create, gmt_modified)
+        VALUES
+        (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [siteId, row.name, Number(row.isHomePage), 0, row.pageOrder, row.title, new Date(), new Date()]
+      );
+    }
+  });
+
+  await Promise.all(queue);
+
+  const response = await fetchPageListData(siteId);
+
+  res.send(response);
 });
 
 module.exports = router;

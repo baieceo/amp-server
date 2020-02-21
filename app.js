@@ -1,3 +1,11 @@
+/*
+ * @Author: your name
+ * @Date: 2020-02-16 19:10:48
+ * @LastEditTime: 2020-02-21 20:25:01
+ * @LastEditors: your name
+ * @Description: In User Settings Edit
+ * @FilePath: \amp-server\app.js
+ */
 const createError = require('http-errors');
 const express = require('express');
 const cors = require('cors');
@@ -24,7 +32,7 @@ app.set('view engine', 'pug');
 app.use(cors({
   origin: /http:\/\/localhost:\d*$/,
   credentials: true,
-  methods: ['GET', 'POST'],
+  methods: ['GET', 'POST', 'PUT'],
   alloweHeaders: ['Content-Type', 'application/json;charset=utf-8;application/x-www-form-urlencoded']
 }));
 app.use(logger('dev'));
