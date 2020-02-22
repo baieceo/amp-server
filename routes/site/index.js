@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-16 19:16:15
- * @LastEditTime: 2020-02-21 21:20:26
+ * @LastEditTime: 2020-02-22 14:34:22
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \amp-server\routes\site\index.js
@@ -38,7 +38,7 @@ const fetchPageListData = async (siteId) => {
   let sqlSyntax = ``;
 
   sqlSyntax = `
-    SELECT id, title, name, page_order, is_home_page, is_deleted, site_id
+    SELECT id, title, name, page_order, url, is_home_page, is_deleted, site_id
     FROM amp.page_tbl
     WHERE site_id = ? AND is_deleted <> 1
     ORDER BY page_order ASC
@@ -57,7 +57,8 @@ const fetchPageListData = async (siteId) => {
         pageOrder: row.page_order,
         isHomePage: !!row.is_home_page,
         isDeleted: !!row.is_deleted,
-        title: row.title
+        title: row.title,
+        url: row.url
       }
     });
   }
@@ -200,9 +201,9 @@ router.put('/:siteId', async (req, res, next) => {
       // 更新
       return db.exec(`
         UPDATE amp.page_tbl 
-        SET is_deleted = ?, is_home_page = ? 
+        SET is_deleted = ?, is_home_page = ?, title = ?, name = ?
         WHERE id = ?`,
-        [Number(row.isDeleted), Number(row.isHomePage), row.id]
+        [Number(row.isDeleted), Number(row.isHomePage), row.title, row.name, row.id]
       );
     } else {
       // 新建页面

@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2020-02-20 16:46:55
- * @LastEditTime: 2020-02-21 10:29:16
+ * @LastEditTime: 2020-02-22 20:09:32
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \amp-admin\src\pages\editor\site\sandbox\index.html
@@ -13,6 +13,33 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
+  <link rel="stylesheet" href="https://unpkg.com/antd@4.0.0-rc.5/dist/antd.min.css" />
+  <style>
+    html,
+    body,
+    #root,
+    .layout {
+      min-height: 100vh;
+    }
+
+    .layout-loading {
+      display: flex;
+      height: 100vh;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .layout-fullscreen {
+      width: 100vw;
+      height: 100vh;
+    }
+
+    .layout-flexcenter {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
 </head>
 
 <body>
@@ -21,24 +48,80 @@
   <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
   <script crossorigin src="https://unpkg.com/babel-standalone@6.26.0/babel.min.js"></script>
+  <script src="https://unpkg.com/antd@4.0.0-rc.5/dist/antd.min.js"></script>
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   <script type="text/babel">
     class App extends React.Component {
       constructor(props) {
         super(props);
 
-        this.state = {};
+        this.state = {
+          loading: true,
+          siteId: Infinity,
+          pageId: Infinity,
+          data: [],
+          componentList: []
+        };
+      }
+
+      send = (action, payload) => {
+        window.parent.postMessage({
+          action,
+          payload
+        }, '*');
+      }
+
+      receivePostMessage = (e) => {
+        this.setState({
+          loading: true
+        });
+
+        setTimeout(() => {
+          this.setState({
+            loading: false,
+            ...e.data.payload.previewData
+          });
+        }, 2000);
+      }
+
+      renderPage = () => {
+        if (!this.state.componentList.length) {
+          return (
+            <div className="layout-fullscreen layout-flexcenter">
+              <antd.Empty
+                description={
+                  <antd.Button type="link">请添加组件</antd.Button>
+                }
+                onClick={e => this.send('view-resource')}
+              />
+            </div>
+          );
+        }
+
+        return <div>123</div>
       }
 
       componentDidMount() {
         axios.get('http://localhost:3000/api/site/package/common?subType=pkg').then(res => {
-          console.log(11111, res);
+          // console.log(11111, res);
         });
+
+        window.addEventListener('message', this.receivePostMessage, false);
+      }
+
+      componentWillUnmount() {
+        window.removeEventListener('message', this.receivePostMessage, false);
       }
 
       render() {
         return (
-          <h1>123</h1>
+          <div className="layout">
+            {
+              this.state.loading ? <div className="layout-loading">
+                <antd.Spin />
+              </div> : this.renderPage()
+            }
+          </div>
         );
       }
     }
