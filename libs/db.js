@@ -48,6 +48,8 @@ const exec = (sql, params = null) => {
   return new Promise((resolve, reject) => {
     connection.query(sql, params, (error, results, fields) => {
       if (error) {
+        console.log('Query Sql: ', sql);
+        console.log('Query Params: ', params);
         console.log('Query Error: ', error)
 
         reject(error)
@@ -93,9 +95,11 @@ module.exports = {
       exec(`
         CREATE TABLE IF NOT EXISTS \`component_tbl\`(
           \`id\` INT UNSIGNED AUTO_INCREMENT,
+          \`page_id\` INT NOT NULL,
           \`package_id\` VARCHAR(100) NOT NULL,
+          \`schema_name\` VARCHAR(100) NOT NULL,
           \`uid\` VARCHAR(100) UNIQUE NOT NULL,
-          \`page_id\` DATETIME NOT NULL,
+          \`data\` TEXT,
           PRIMARY KEY ( \`id\` )
         )ENGINE=InnoDB DEFAULT CHARSET=utf8;`
       )]

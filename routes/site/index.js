@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-16 19:16:15
- * @LastEditTime: 2020-02-22 14:34:22
+ * @LastEditTime: 2020-02-23 17:32:02
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \amp-server\routes\site\index.js
@@ -19,7 +19,7 @@ const packageDetailListPath = __dirname + '/model/packageDetailList.json';
 let requestOptions = {
 
   headers: {
-    'Cookie': '_locale=zh-cn; acw_tc=76b20fed15817664240884628e1c679e7efd1e7da09c8e2e5f55c885c8f2ae; ctoken=ix9lBxsVAS36TpDTeJPwhykI; YFD_SESS=-wPxVWuYocZlwoyea8BneA7ybaLYJicGtMCuK3qf_P2SPznoV889quE8gqib9Vbi9KDTbvnX555z_k_KMy3YTJlB0quKL-NNmu5vdFX3iGfFv32to4pp46fGhKLJT4H3cVBVFaPZH5oUckGZKmJb7buVz7zp1MJwhMsm7mj8flLk0l2gUzRzrhGESHQKsMSQcOudgQpqrMTd68hH3gsfmg==; aliyungf_tc=AQAAANlhShezLQoAqOt5e1/eIGJ93/Q7; SERVERID=4316faba76344fa03f154520b639f3ce|1581907620|1581907620',
+    'Cookie': '_locale=zh-cn; acw_tc=76b20ff015819313908578039e42922dc5cf8d35598f8bbb47e31f8bb99861; YFD_SESS=-wPxVWuYocZlwoyea8BneJMEHSqWTuzFRAAFOeNdssFUjTErHvkNtkV-j8tgrhMBbKN4r7SRiZ57_cGclNgakqsSOEhufQy72CCzn97dsNhv31lRmVKpz6CzZ4L8OaGN9gCKYf4Y1VKzGmyjizKjTRvtvlqStiSgKxBB5Oke0mxgENL3DZTu-PvFRmruvyWNRlK-0QOC-n8iDT1nI6UvC7k4VZ-2Vaqkw21IDuQ8p83weSKBXx3amFRAZkFDbNGX; aliyungf_tc=AQAAAFx5whDNKQoA+eB5exJs+hR3IIbo; ctoken=9TUKer_V8Ih1HUjNuRqxDaIS; SERVERID=3cd6d357ee34357d6186d3f5f7cc4821|1582450279|1582450278'
   }
 };
 
@@ -176,8 +176,6 @@ router.post('/page/default/update', async (req, res, next) => {
       WHERE id = ?
     `;
 
-    console.log(88888, siteId, pageId);
-
     results = await db.exec(sqlSyntax, [1, pageId]);
 
     const response = {
@@ -188,6 +186,33 @@ router.post('/page/default/update', async (req, res, next) => {
   } else {
     res.send({});
   }
+});
+
+/* 更新页面组件 */
+router.post('/:siteId/:pageId/component/update', async (req, res, next) => {
+  const { pageId, componentList, data } = req.body;
+  let sqlSyntax = ``;
+  let queue = [];
+
+  queue.push(db.exec(`
+    DELETE FROM amp.component_tbl
+    WHERE page_id = ?
+  `, [pageId]));
+
+  queue.concat(componentList.map(row => {
+    return db.exec(`
+      INSERT INTO amp.component_tbl
+      (page_id, package_id, schema_name, uid, data)
+      VALUES
+      (?, ?, ?, ?, ?)
+    `, [pageId, row.packageId, row.name, row.uid, row.data || '']);
+  }));
+
+  await Promise.all(queue);
+
+  res.send({
+    ok: true
+  });
 });
 
 /* 更新页面 */

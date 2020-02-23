@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2020-02-20 16:46:55
- * @LastEditTime: 2020-02-23 14:47:37
+ * @LastEditTime: 2020-02-23 20:03:11
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \amp-admin\src\pages\editor\site\sandbox\index.html
@@ -50,6 +50,7 @@
   <script crossorigin src="https://unpkg.com/babel-standalone@6.26.0/babel.min.js"></script>
   <script src="https://unpkg.com/antd@4.0.0-rc.5/dist/antd.min.js"></script>
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script type="text/babel" src="../components/1/app.js"></script>
   <script type="text/babel">
     class App extends React.Component {
       constructor(props) {
@@ -115,7 +116,8 @@
       }
 
       render() {
-        return (
+        return <ComponentA data={1} />;
+        /* return (
           <div className="layout">
             {
               this.state.loading ? <div className="layout-loading">
@@ -123,7 +125,7 @@
               </div> : this.renderPage()
             }
           </div>
-        );
+        ); */
       }
     }
 

@@ -1,8 +1,8 @@
 /*
  * @Author: your name
  * @Date: 2020-02-16 19:10:48
- * @LastEditTime: 2020-02-21 20:25:01
- * @LastEditors: your name
+ * @LastEditTime: 2020-02-23 19:14:08
+ * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \amp-server\app.js
  */
@@ -27,7 +27,7 @@ db.init();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'pug');
+app.set('view engine', 'ejs');
 
 app.use(cors({
   origin: /http:\/\/localhost:\d*$/,
