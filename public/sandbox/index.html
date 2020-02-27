@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2020-02-20 16:46:55
- * @LastEditTime: 2020-02-28 06:01:12
+ * @LastEditTime: 2020-02-28 06:18:41
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \amp-server\public\sandbox\index.html
@@ -39,7 +39,7 @@
 
       renderDom.addEventListener('load', renderLoaded, false);
 
-      function send2Sandbox(action, payload) {
+      function send2editor(action, payload) {
         window.parent.postMessage({
           action,
           payload
@@ -47,7 +47,7 @@
         '*');
       }
 
-      function send2Render(action, payload) {
+      function send2render(action, payload) {
         renderWindow.postMessage(
           {
             action,
@@ -58,24 +58,24 @@
       }
 
       function renderLoaded() {
-        send2Sandbox('render-loaded');
+        send2editor('render-loaded');
       }
 
       function receiveSandboxMessage(e) {
-        const { action, payload, from = 'sandbox' } = e.data;
+        const { action, payload, from = 'editor' } = e.data;
 
-        if (action === 'render') {
+        if (from === 'render') {
+          send2editor(action, payload);
+        } 
+        
+        if (from === 'editor' && action !== 'render') {
+          send2render(action, payload);
+        }
+
+        if (from === 'editor' && action === 'render') {
           renderWindow.document.open('text/html', 'replace');
           renderWindow.document.write(payload);
           renderWindow.document.close();
-        }
-
-        if (from === 'render') {
-          send2Sandbox(action, payload);
-        } 
-        
-        if (from === 'sandbox') {
-          send2Render(action, payload);
         }
       }
 

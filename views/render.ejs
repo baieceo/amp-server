@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2020-02-23 19:20:37
- * @LastEditTime: 2020-02-28 05:59:46
+ * @LastEditTime: 2020-02-28 06:43:39
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \amp-server\views\render.ejs
@@ -48,11 +48,11 @@
           siteId: Infinity,
           pageId: Infinity,
           data: [],
-          componentList: []
+          componentList: window['AMP_COMPONENTS_LIST']
         };
       }
 
-      send = (action, payload) => {
+      send2sandbox = (action, payload) => {
         window.parent.postMessage({
           action,
           payload,
@@ -81,7 +81,7 @@
                 description={
                   <antd.Button type="link">请添加组件</antd.Button>
                 }
-                onClick={e => this.send('view-resource')}
+                onClick={e => this.send2sandbox('view-resource')}
               />
             </div>
           );
