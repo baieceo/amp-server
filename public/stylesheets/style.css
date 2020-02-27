@@ -1,8 +1,33 @@
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
 body {
-  padding: 50px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
-a {
-  color: #00B7FF;
+html,
+body,
+#root,
+.layout {
+  min-height: 100vh;
+}
+
+.layout-loading {
+  display: flex;
+  height: 100vh;
+  align-items: center;
+  justify-content: center;
+}
+
+.layout-fullscreen {
+  width: 100vw;
+  height: 100vh;
+}
+
+.layout-flexcenter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

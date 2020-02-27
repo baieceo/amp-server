@@ -1,7 +1,15 @@
 <!--
  * @Author: your name
  * @Date: 2020-02-20 16:46:55
- * @LastEditTime: 2020-02-23 14:47:37
+ * @LastEditTime: 2020-02-28 06:01:12
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \amp-server\public\sandbox\index.html
+ -->
+<!--
+ * @Author: your name
+ * @Date: 2020-02-20 16:46:55
+ * @LastEditTime: 2020-02-24 16:49:22
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \amp-admin\src\pages\editor\site\sandbox\index.html
@@ -12,125 +20,67 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-  <link rel="stylesheet" href="https://unpkg.com/antd@4.0.0-rc.5/dist/antd.min.css" />
+  <title>sandbox</title>
   <style>
-    html,
-    body,
-    #root,
-    .layout {
-      min-height: 100vh;
-    }
-
-    .layout-loading {
-      display: flex;
-      height: 100vh;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .layout-fullscreen {
-      width: 100vw;
-      height: 100vh;
-    }
-
-    .layout-flexcenter {
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    html, body {
+      margin: 0;
+      padding: 0;
     }
   </style>
 </head>
 
 <body>
-  <div id="root"></div>
+  <iframe name="render" src="./render.html" frameborder="0" scrolling="no" style="width: 100vw; height: 100vh;"></iframe>
 
-  <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
-  <script crossorigin src="https://unpkg.com/babel-standalone@6.26.0/babel.min.js"></script>
-  <script src="https://unpkg.com/antd@4.0.0-rc.5/dist/antd.min.js"></script>
-  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-  <script type="text/babel">
-    class App extends React.Component {
-      constructor(props) {
-        super(props);
+  <script>
+    (function () {
+      const renderWindow = window.frames.render;
+      const renderDom = document.querySelector('[name="render"]');
 
-        this.state = {
-          loading: true,
-          siteId: Infinity,
-          pageId: Infinity,
-          data: [],
-          componentList: []
-        };
-      }
+      renderDom.addEventListener('load', renderLoaded, false);
 
-      send = (action, payload) => {
+      function send2Sandbox(action, payload) {
         window.parent.postMessage({
           action,
           payload
-        }, '*');
+        },
+        '*');
       }
 
-      receivePostMessage = (e) => {
-        console.log(e.data.payload);
-        this.setState({
-          loading: true
-        });
-
-        setTimeout(() => {
-          this.setState({
-            loading: false,
-            ...e.data.payload.previewData
-          });
-        }, 2000);
-      }
-
-      renderPage = () => {
-        if (!this.state.componentList.length) {
-          return (
-            <div className="layout-fullscreen layout-flexcenter">
-              <antd.Empty
-                description={
-                  <antd.Button type="link">请添加组件</antd.Button>
-                }
-                onClick={e => this.send('view-resource')}
-              />
-            </div>
-          );
-        }
-
-        return <div>123</div>
-      }
-
-      componentDidMount() {
-        axios.get('http://localhost:3000/api/site/package/common?subType=pkg').then(res => {
-          // console.log(11111, res);
-        });
-
-        window.addEventListener('message', this.receivePostMessage, false);
-      }
-
-      componentWillUnmount() {
-        window.removeEventListener('message', this.receivePostMessage, false);
-      }
-
-      render() {
-        return (
-          <div className="layout">
-            {
-              this.state.loading ? <div className="layout-loading">
-                <antd.Spin />
-              </div> : this.renderPage()
-            }
-          </div>
+      function send2Render(action, payload) {
+        renderWindow.postMessage(
+          {
+            action,
+            payload,
+          },
+          '*',
         );
       }
-    }
 
-    ReactDOM.render(
-      <App />,
-      document.getElementById('root')
-    );
+      function renderLoaded() {
+        send2Sandbox('render-loaded');
+      }
+
+      function receiveSandboxMessage(e) {
+        const { action, payload, from = 'sandbox' } = e.data;
+
+        if (action === 'render') {
+          renderWindow.document.open('text/html', 'replace');
+          renderWindow.document.write(payload);
+          renderWindow.document.close();
+        }
+
+        if (from === 'render') {
+          send2Sandbox(action, payload);
+        } 
+        
+        if (from === 'sandbox') {
+          send2Render(action, payload);
+        }
+      }
+
+      window.addEventListener('message', receiveSandboxMessage, false);
+    })();
   </script>
 </body>
 
