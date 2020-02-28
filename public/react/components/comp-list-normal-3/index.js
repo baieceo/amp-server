@@ -1,11 +1,3 @@
-/*
- * @Author: your name
- * @Date: 2020-02-23 19:58:30
- * @LastEditTime: 2020-02-28 22:38:32
- * @LastEditors: Please set LastEditors
- * @Description: In User Settings Edit
- * @FilePath: \amp-server\public\components\comp-list-normal-3\index.js
- */
 (function moduleDefinition(root, factory) {
   const $ = 'CompListNormal3'; // 自定义模块名
 
