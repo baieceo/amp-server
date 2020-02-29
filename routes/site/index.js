@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-02-16 19:16:15
- * @LastEditTime: 2020-02-23 17:32:02
+ * @LastEditTime: 2020-02-29 22:49:14
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \amp-server\routes\site\index.js
@@ -226,18 +226,18 @@ router.put('/:siteId', async (req, res, next) => {
       // 更新
       return db.exec(`
         UPDATE amp.page_tbl 
-        SET is_deleted = ?, is_home_page = ?, title = ?, name = ?
+        SET is_deleted = ?, is_home_page = ?, title = ?, name = ?, url = ?
         WHERE id = ?`,
-        [Number(row.isDeleted), Number(row.isHomePage), row.title, row.name, row.id]
+        [Number(row.isDeleted), Number(row.isHomePage), row.title, row.name, row.url, row.id]
       );
     } else {
       // 新建页面
       return db.exec(`
         INSERT INTO amp.page_tbl
-        (site_id, name, is_home_page, is_deleted, page_order, title, gmt_create, gmt_modified)
+        (site_id, name, url, is_home_page, is_deleted, page_order, title, gmt_create, gmt_modified)
         VALUES
-        (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [siteId, row.name, Number(row.isHomePage), 0, row.pageOrder, row.title, new Date(), new Date()]
+        (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [siteId, row.name, row.url, Number(row.isHomePage), 0, row.pageOrder, row.title, new Date(), new Date()]
       );
     }
   });

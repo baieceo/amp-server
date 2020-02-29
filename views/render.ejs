@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2020-02-23 19:20:37
- * @LastEditTime: 2020-02-28 22:36:29
+ * @LastEditTime: 2020-02-29 15:03:43
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \amp-server\views\render.ejs
@@ -55,6 +55,7 @@
           loading: false,
           siteId: Infinity,
           pageId: Infinity,
+          uid: Infinity,
           data: [],
           componentList,
           actions: {
@@ -77,7 +78,7 @@
         }, '*');
       }
 
-      receivePostMessage = (e) => {
+      receiveSandboxMessage = (e) => {
         this.setState({
           loading: true
         });
@@ -87,7 +88,7 @@
             loading: false,
             // ...e.data.payload.previewData
           });
-        }, 2000);
+        }, 1000);
       }
 
       onContainerMove = (e) => {
@@ -106,6 +107,7 @@
         }
 
         this.setState({
+          uid: target.getAttribute('uid'),
           actions: {
             ...this.state.actions,
             visible: true,
@@ -119,7 +121,60 @@
         });
       }
 
-      renderPage = () => {
+      onSettingClick = async () => {
+        await this.removeComponentPlaceholder();
+
+        this.send2sandbox('view-schema', {
+          uid: this.state.uid,
+          packageId: this.state.componentList.find(i => i.uid === this.state.uid).packageId
+        });
+      }
+
+      removeComponentPlaceholder () {
+        const componentList = [...this.state.componentList];
+        const placeholderIndex = componentList.findIndex(i => i.type === 'placeholder');
+
+        if (placeholderIndex !== -1) {
+          componentList.splice(placeholderIndex, 1);
+        }
+
+        this.setState({
+          componentList
+        });
+      }
+
+      onCreateClick = async (direction) => {
+        await this.removeComponentPlaceholder();
+
+        const componentList = [...this.state.componentList];
+        const targetIndex = componentList.findIndex(i => i.uid === this.state.uid);
+        let insertIndex = -1;
+        
+        if (direction === 'up') {
+          insertIndex = targetIndex - 1;
+        }
+
+        if (direction === 'down') {
+          insertIndex = targetIndex + 1;
+        }
+
+        if (insertIndex === -1) {
+          insertIndex = 0;
+        }
+
+        componentList.splice(insertIndex, 0, { type: 'placeholder' });
+
+        this.setState({
+          componentList
+        })
+
+        this.send2sandbox('view-resource', {
+          uid: this.state.uid,
+          direction: 'previous'
+        })
+      }
+
+      renderPage () {
         if (!this.state.componentList.length) {
           return (
             <div className="layout-fullscreen layout-flexcenter">
@@ -141,9 +196,13 @@
             onMouseMove={this.onContainerMove}
           >
             {
-              this.state.componentList.length > 0 && this.state.componentList.map(component => React.createElement(
+              this.state.componentList.length > 0 && this.state.componentList.map(component => component.type === 'placeholder' ? 
+                <div className="amp-component-placeholder" key="amp-component-placeholder">添加至此处</div> : 
+                React.createElement(
+                  
                   window[component.componentName],
                   {
+                    uid: component.uid,
                     key: component.uid
                   },
                   null
@@ -152,15 +211,21 @@
             }
 
             <div className="amp-component-actions" style={{ top: this.state.actions.position.top, left: this.state.actions.position.left, width: this.state.actions.width, height: this.state.actions.height, display: this.state.actions.visible ? 'block': 'none' }}>
-              <i className="iconfont icon-increase icon-increase-up" />
+              <i className="iconfont icon-increase icon-increase-up" onClick={() => this.onCreateClick('up')} />
 
               <div className="amp-component-actions-tools">
-                <div className="amp-component-actions-tools-item"><i className="iconfont icon-setting" /></div>
-                <div className="amp-component-actions-tools-item"><i className="iconfont icon-upward" /></div>
-                <div className="amp-component-actions-tools-item"><i className="iconfont icon-down" /></div>
+                <div className="amp-component-actions-tools-item">
+                  <i className="iconfont icon-setting" onClick={() => this.onSettingClick()} />
+                </div>
+                <div className="amp-component-actions-tools-item">
+                  <i className="iconfont icon-upward" />
+                </div>
+                <div className="amp-component-actions-tools-item">
+                  <i className="iconfont icon-down" />
+                </div>
               </div>
               
-              <i className="iconfont icon-increase icon-increase-down" />
+              <i className="iconfont icon-increase icon-increase-down" onClick={() => this.onCreateClick('down')} />
             </div>
           </div>
         );
@@ -171,11 +236,11 @@
           // console.log(11111, res);
         }); */
 
-        window.addEventListener('message', this.receivePostMessage, false);
+        window.addEventListener('message', this.receiveSandboxMessage, false);
       }
 
       componentWillUnmount() {
-        window.removeEventListener('message', this.receivePostMessage, false);
+        window.removeEventListener('message', this.receiveSandboxMessage, false);
       }
 
       render() {
