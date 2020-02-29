@@ -1,13 +1,13 @@
 /*
  * @Author: your name
  * @Date: 2020-02-23 19:58:30
- * @LastEditTime: 2020-02-29 14:42:20
+ * @LastEditTime: 2020-02-29 14:42:39
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \amp-server\public\components\comp-list-normal-3\index.js
  */
 (function moduleDefinition(root, factory) {
-  const $ = 'CompListNormal3'; // 自定义模块名
+  const $ = 'CompBannerNormalPad'; // 自定义模块名
 
   if ('object' === typeof exports && 'object' === typeof module) {
     module.exports[$] = factory(); // 兼容 CommonJS
@@ -31,7 +31,7 @@
     render() {
       return (
         <div className="amp-component" uid={this.props.uid}>
-          <div className="amp-component-inner">comp-list-normal-3</div>
+          <div className="amp-component-inner">comp-banner-normal-pad</div>
         </div>
       );
     }
