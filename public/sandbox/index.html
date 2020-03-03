@@ -1,8 +1,8 @@
 <!--
  * @Author: your name
  * @Date: 2020-02-20 16:46:55
- * @LastEditTime: 2020-02-28 08:15:25
- * @LastEditors: your name
+ * @LastEditTime: 2020-03-03 16:20:50
+ * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \amp-server\public\sandbox\index.html
  -->
@@ -14,7 +14,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>sandbox</title>
   <style>
-    html, body {
+    html,
+    body {
       margin: 0;
       padding: 0;
     }
@@ -22,7 +23,8 @@
 </head>
 
 <body>
-  <iframe name="render" src="./render.html" frameborder="0" scrolling="no" style="width: 100vw; height: 100vh;"></iframe>
+  <iframe name="render" src="./render.html" frameborder="0" scrolling="no"
+    style="width: 100vw; height: 100vh;"></iframe>
 
   <script>
     (function () {
@@ -36,7 +38,7 @@
           action,
           payload
         },
-        '*');
+          '*');
       }
 
       function send2render(action, payload) {
@@ -53,25 +55,29 @@
         send2editor('render-loaded');
       }
 
-      function receiveSandboxMessage(e) {
+      function renderHtml(payload) {
+        renderWindow.document.open('text/html', 'replace');
+        renderWindow.document.write(payload);
+        renderWindow.document.close();
+      }
+
+      function receivePostMessage(e) {
         const { action, payload, from = 'editor' } = e.data;
 
         if (from === 'render') {
           send2editor(action, payload);
-        } 
-        
+        }
+
         if (from === 'editor' && action !== 'render') {
           send2render(action, payload);
         }
 
         if (from === 'editor' && action === 'render') {
-          renderWindow.document.open('text/html', 'replace');
-          renderWindow.document.write(payload);
-          renderWindow.document.close();
+          renderHtml(payload);
         }
       }
 
-      window.addEventListener('message', receiveSandboxMessage, false);
+      window.addEventListener('message', receivePostMessage, false);
     })();
   </script>
 </body>
