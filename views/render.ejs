@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2020-02-23 19:20:37
- * @LastEditTime: 2020-02-29 15:03:43
+ * @LastEditTime: 2020-03-02 21:27:27
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \amp-server\views\render.ejs
@@ -16,20 +16,20 @@
   <title><%= title %></title>
   <link rel='stylesheet' href='/stylesheets/style.css' />
   <link rel="stylesheet" href="/iconfont/iconfont.css">
-  <link rel="stylesheet" href="https://unpkg.com/antd@4.0.0-rc.5/dist/antd.min.css" />
+  <link rel="stylesheet" href="/stylesheets/vendors/antd.min.css" />
 </head>
 
 <body>
   <div id="root"></div>
 
-  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
-  <script crossorigin src="https://unpkg.com/babel-standalone@6.26.0/babel.min.js"></script>
-  <script src="https://unpkg.com/antd@4.0.0-rc.5/dist/antd.min.js"></script>
-  
+  <script src="/javascripts/vendors/axios.min.js"></script>
+  <script crossorigin src="/javascripts/vendors/react.development.js"></script>
+  <script crossorigin src="/javascripts/vendors/react-dom.development.js"></script>
+  <script crossorigin src="/javascripts/vendors/babel.min.js"></script>
+  <script src="/javascripts/vendors/antd.min.js"></script>
+
   <% componentList.forEach(component => { %>
-      <script type="text/babel" src="/components/<%= component.name %>/index.js"></script>
+  <script type="text/babel" src="/components/<%= component.name %>/index.js"></script>
   <% }); %>
 
   <script>
@@ -97,7 +97,7 @@
         // console.log(e.nativeEvent.target.parentNode);
 
         let { target } = e.nativeEvent
-        
+
         while (target && target.classList && !target.classList.contains('amp-component')) {
           target = target.parentNode;
         }
@@ -130,7 +130,7 @@
         });
       }
 
-      removeComponentPlaceholder () {
+      removeComponentPlaceholder() {
         const componentList = [...this.state.componentList];
         const placeholderIndex = componentList.findIndex(i => i.type === 'placeholder');
 
@@ -149,7 +149,7 @@
         const componentList = [...this.state.componentList];
         const targetIndex = componentList.findIndex(i => i.uid === this.state.uid);
         let insertIndex = -1;
-        
+
         if (direction === 'up') {
           insertIndex = targetIndex - 1;
         }
@@ -174,7 +174,7 @@
         })
       }
 
-      renderPage () {
+      renderPage() {
         if (!this.state.componentList.length) {
           return (
             <div className="layout-fullscreen layout-flexcenter">
@@ -191,15 +191,15 @@
         // console.log('页面组件渲染', this.state.componentList)
 
         return (
-          <div 
-            className="amp-component-list-container" 
+          <div
+            className="amp-component-list-container"
             onMouseMove={this.onContainerMove}
           >
             {
-              this.state.componentList.length > 0 && this.state.componentList.map(component => component.type === 'placeholder' ? 
-                <div className="amp-component-placeholder" key="amp-component-placeholder">添加至此处</div> : 
+              this.state.componentList.length > 0 && this.state.componentList.map(component => component.type === 'placeholder' ?
+                <div className="amp-component-placeholder" key="amp-component-placeholder">添加至此处</div> :
                 React.createElement(
-                  
+
                   window[component.componentName],
                   {
                     uid: component.uid,
@@ -210,7 +210,7 @@
               )
             }
 
-            <div className="amp-component-actions" style={{ top: this.state.actions.position.top, left: this.state.actions.position.left, width: this.state.actions.width, height: this.state.actions.height, display: this.state.actions.visible ? 'block': 'none' }}>
+            <div className="amp-component-actions" style={{ top: this.state.actions.position.top, left: this.state.actions.position.left, width: this.state.actions.width, height: this.state.actions.height, display: this.state.actions.visible ? 'block' : 'none' }}>
               <i className="iconfont icon-increase icon-increase-up" onClick={() => this.onCreateClick('up')} />
 
               <div className="amp-component-actions-tools">
@@ -224,7 +224,7 @@
                   <i className="iconfont icon-down" />
                 </div>
               </div>
-              
+
               <i className="iconfont icon-increase icon-increase-down" onClick={() => this.onCreateClick('down')} />
             </div>
           </div>
